@@ -32,9 +32,9 @@ Run the container using the following to allow TCP port 80 (HTTP) and to mount `
 docker run \
   --restart unless-stopped \
   --name lancache \
+  --network host \
   -v /cache/data:/data/cache \
   -v /cache/logs:/data/logs \
-  -p 192.168.1.10:80:80 \
   lancachenet/monolithic:latest
 ```
 
@@ -46,11 +46,53 @@ To initialise a full caching setup with dns and sni proxy you can use the follow
 ```
 export HOST_IP=`hostname -I | cut -d' ' -f1`
 docker run --restart unless-stopped --name lancache-dns --detach -p 53:53/udp -e USE_GENERIC_CACHE=true -e LANCACHE_IP=$HOST_IP lancachenet/lancache-dns:latest
-docker run --restart unless-stopped --name lancache --detach -v /cache/data:/data/cache -v /cache/logs:/data/logs -p 80:80  lancachenet/monolithic:latest
+docker run --restart unless-stopped --name lancache --network host --detach -v /cache/data:/data/cache -v /cache/logs:/data/logs   lancachenet/monolithic:latest
 docker run --restart unless-stopped --name sniproxy --detach -p 443:443 lancachenet/sniproxy:latest
 echo Please configure your router/dhcp server to serve dns as $HOST_IP
 ```
 Please check that `hostname -I` returns the correct IP before running this snippet
+
+
+## Host network confgiguration (Workaround) 
+
+In my findings it is better to use host network for the lancache server rather than port mapping because by default docker bridge does not NAT internet traffic to docker hosts,  one could argue that we could simply modify the docker bridge network to NAT traffic,  However, why re-invent the wheel?  We can get direct network access for this continer by using host network
+
+``docker exec -it lancache /bin/bash`` 
+
+You will drop to a prompt
+
+root@lancache:/scripts# 
+
+From here the setup is realitivly stragith forward.  
+
+First lets install nano for simplicity sake.
+
+``apt -y install nano`` 
+
+``nano /etc/nginx/sites-available/10_generic.conf``
+
+At the top of this file you will see the listen line 
+
+listen 80 reuseport; 
+
+We need to change this,  Where the normal guide would tell you to define a host IP and port to "Map" to the container we now have direct access to the IPs on the host, so we can bind to it directly.  In my case i use the local IP 192.168.1.40 for my lancache server.  So i set this: 
+
+listen 192.168.1.40:80 reusport; 
+
+ctrl+x to save 
+
+``service nginx restart``  
+
+Your lancache server will not have full network access and should not timeout anymore. 
+
+
+## LanCache-DNS Config
+
+W.I.P It has the same problem as the monolitic container that it does not have external network access and can't lookup remote addresses.  I will work on a guide to fixing it as well as a guide to an alterntive manual solution with unbound below (soon)
+
+## Manual Unbound DNS (ALTERNITIVE TO LANCACHE-DNS) 
+
+W.I.P (COMING SOON)
 
 
 ## Changing from lancachenet/steamcache and lancachenet/generic
