@@ -38,6 +38,8 @@ docker run \
   lancachenet/monolithic:latest
 ```
 
+>You will notice, that there are no ports specified in this command, that's because we have changed the container to the 'host' network.
+
 Unlike lancachenet/generic this service will cache all cdn services defined in the [uklans cache-domains repo](https://github.com/uklans/cache-domains) so multiple instances are not required.
 
 ## Simple Full Stack startup
@@ -75,7 +77,7 @@ At the top of this file you will see the listen line
 
 listen 80 reuseport; 
 
-We need to change this,  Where the normal guide would tell you to define a host IP and port to "Map" to the container we now have direct access to the IPs on the host, so we can bind to it directly.  In my case i use the local IP 192.168.1.40 for my lancache server.  So i set this: 
+We need to change this,  Where the normal guide would tell you to define a host IP and port to "Map" to the container we now have direct access to the IPs on the host, so we can bind to it directly.  In my case i use the local IP 192.168.1.40 for my lancache server. **(Yours will be different)** So i set this: 
 
 listen 192.168.1.40:80 reusport; 
 
@@ -83,7 +85,7 @@ ctrl+x to save
 
 ``service nginx restart``  
 
-Your lancache server will not have full network access and should not timeout anymore. 
+Your lancache server will now have full network access and should not timeout anymore. 
 
 
 ## LanCache-DNS Config
