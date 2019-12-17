@@ -67,6 +67,10 @@ root@lancache:/scripts#
 
 From here the setup is realitivly stragith forward.  
 
+Optionally We can list the avaliable IPs to the container with the following command
+
+``ip addr``  **Note which IP you want to use for LANCACHE_IP**
+
 First lets install nano for simplicity sake.
 
 ``apt -y install nano`` 
