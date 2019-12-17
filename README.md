@@ -55,7 +55,7 @@ echo Please configure your router/dhcp server to serve dns as $HOST_IP
 Please check that `hostname -I` returns the correct IP before running this snippet
 
 
-## Host network confgiguration (Workaround) 
+## Host network configuration  (Workaround) 
 
 In my findings it is better to use host network for the lancache server rather than port mapping because by default docker bridge does not NAT internet traffic to docker hosts,  one could argue that we could simply modify the docker bridge network to NAT traffic,  However, why re-invent the wheel?  We can get direct network access for this continer by using host network
 
