@@ -97,9 +97,45 @@ Your lancache server will now have full network access and should not timeout an
 W.I.P It has the same problem as the monolitic container that it does not have external network access and can't lookup remote addresses.  I will work on a guide to fixing it as well as a guide to an alterntive manual solution with unbound below (soon)
 
 ## Manual Unbound DNS (ALTERNITIVE TO LANCACHE-DNS) 
+## You will need a VM (Docker, Xen, LXC) I choose to run a LXC container with CentOS 
+```
+yum install git
+yum install jq
+yum install unbound
+```
 
-W.I.P (COMING SOON)
+```
+git clone https://github.com/uklans/cache-domains.git
+cd cache-domains/
 
+cd scripts/
+
+mv config.example.json config.json
+```
+
+## Change IP for all entries to your LANcache IP
+```
+nano config.json
+```
+## Now we need to make a few simple edits to the script. 
+```
+nano create-unbound.sh 
+```
+## Make your settings match the , this way when the script runs it will automatically output to the right config directory under /etc/unbound/local.d/  When unbound starts it parses all files in this directory.
+```
+basedir=".."
+outputdir="/etc/unbound/local.d/"
+path="${basedir}/cache_domains.json"
+```
+
+## Now just run the script, it will create the required zone files and put them in the correct place   
+```
+./create-unbound.sh
+```
+## Now Restart unbound  and when you query any record for lancache unbound will answer with the LANcache IP.
+```
+systemctl restart unbound
+```
 
 ## Changing from lancachenet/steamcache and lancachenet/generic
 
